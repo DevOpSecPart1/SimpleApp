@@ -1,0 +1,56 @@
+version: 2.1 # YAML 2.1
+
+workflows:
+  version: 2 # CircleCI 2
+  build:
+    jobs:
+      - build: # tasks we want CircleCI to execute (cont integr)
+          filters:
+            branches:
+              only:
+                - main #CircleCi only will run CI on the main branch in Git
+      # - deploy:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      #     requires:
+      #       - build
+
+jobs:
+  build: # what happens in our build job
+    working_directory: ~/SimpleApplication
+    docker:
+      - image: circleci/node:10.16.3 #version of node using the docker command
+    steps:
+      - checkout # first is the checkout the GitHub repository
+      - run:
+          name: Update npm # npm version
+          command: 'sudo npm install -g npm@5' # Use sudo to fix permission issue
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }} # install dependencies for node app to use
+      - run:
+          name: Install npm dependencies
+          command: npm install --unsafe-perm # Fix permission issue during install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      # - run:
+      #     name: Run Tests
+      #     command: npm test
+      # - save_cache:
+      #     key: dependency-cache-{{ checksum "package-lock.json" }}
+      #     paths:
+      #       - ./node_modules
+
+  # deploy:
+  #   docker:
+  #     - image: circleci/node:10.16.3
+  #   steps:
+  #     - run:
+  #         name: Deploy Application
+  #         command: |
+  #           ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS \
+  #             "rm -rf Lab/; git clone https://github.com/MargaritaRomaniuk/Lab.git; \
+  #             cd Lab; source deploy.sh"

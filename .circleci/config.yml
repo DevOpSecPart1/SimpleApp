@@ -1,7 +1,7 @@
 version: 2.1
 
 workflows:
-  version: 2
+  version: 2 # CircleCI 2
   build:
     jobs:
       - build:
@@ -18,7 +18,7 @@ jobs:
       - checkout
       - run:
           name: Update npm
-          command: 'sudo npm install -g npm@latest'  # Installs the latest npm version
+          command: 'npm install -g npm@8'  # Use npm 8 (compatible with Node 16)
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:

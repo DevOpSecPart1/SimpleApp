@@ -1,24 +1,19 @@
 version: 2.1
 
-workflows:
-  version: 2
-  build:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only: main  # Run CI only on the main branch
+executors:
+  node-executor:
+    docker:
+      - image: circleci/node:16  # Node.js version
+    working_directory: ~/SimpleApplication
 
 jobs:
   build:
-    docker:
-      - image: circleci/node:16  # Updated Node.js version
-    working_directory: ~/SimpleApplication
+    executor: node-executor
     steps:
       - checkout
       - run:
           name: Update npm
-          command: 'sudo npm install -g npm@latest'  # Installs the latest npm version
+          command: 'sudo npm install -g npm@latest'
       - restore_cache:
           key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
@@ -29,5 +24,31 @@ jobs:
           paths:
             - ./node_modules
       - run:
-          name: Run Tests  # Optional - Enable if you have tests
+          name: Run Tests
           command: npm test
+
+  e2e_tests:
+    executor: node-executor
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm install --unsafe-perm
+      - run:
+          name: Install Playwright
+          command: npx playwright install
+      - run:
+          name: Run Playwright Tests
+          command: npx playwright test
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: main
+      - e2e_tests:
+          requires:
+            - build

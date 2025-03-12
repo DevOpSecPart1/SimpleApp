@@ -45,6 +45,6 @@ jobs:
       - run:
           name: Deploy Application
           command: |
-            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS \
+            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC_PUBLIC_DNS \
               "rm -rf Lab/; git clone https://github.com/DevOpSecPart1/SimpleApp.git; \
                cd SimpleApp; source deploy.sh"

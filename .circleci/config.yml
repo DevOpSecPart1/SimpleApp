@@ -11,8 +11,7 @@ workflows:
       - deploy:
           filters:
             branches:
-              only:
-                - main
+              only: main
           requires:
             - build
 
@@ -20,7 +19,7 @@ jobs:
   build:  # what happens in our build job
     docker:
       - image: circleci/node:16  # version of node 
-    working_directory: ~/SimpleApplication
+    working_directory: ~/SimpleApp
     steps:
       - checkout # first is the checkout the GitHub repository
       - run:
@@ -45,6 +44,6 @@ jobs:
       - run:
           name: Deploy Application
           command: |
-            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC_PUBLIC_DNS \
-              "rm -rf Lab/; git clone https://github.com/DevOpSecPart1/SimpleApp.git; \
-               cd SimpleApp; source deploy.sh"
+            ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS \
+              "rm -rf SimpleApp && git clone https://github.com/DevOpSecPart1/SimpleApp.git && \
+               cd SimpleApp && chmod +x deploy.sh && ./deploy.sh"
